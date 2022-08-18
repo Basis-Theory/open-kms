@@ -2,7 +2,7 @@
   "name": "open-kms",
   "version": "1.40.0",
   "description": "Open KMS",
-  "repository": "https://github.com/Basis-Theory-Labs/open-kms",
+  "repository": "https://github.com/Basis-Theory/open-kms",
   "author": "Basis Theory",
   "license": "MIT",
   "private": true,
