@@ -1,0 +1,24 @@
+{
+  "name": "open-kms",
+  "version": "1.40.0",
+  "description": "Open KMS",
+  "repository": "https://github.com/Basis-Theory-Labs/open-kms",
+  "author": "Basis Theory",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "release": "semantic-release"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/commit-analyzer": "^9.0.2",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^8.0.5",
+    "@semantic-release/release-notes-generator": "^10.0.3",
+    "semantic-release": "^19.0.3"
+  },
+  "resolutions": {
+    "semver-regex": "^3.1.4"
+  }
+}
