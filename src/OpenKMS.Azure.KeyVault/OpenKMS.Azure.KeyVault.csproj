@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>true</IsPackable>
+        <Description>OpenKMS Azure KeyVault encryption service provider</Description>
+        <Copyright>Copyright 2022</Copyright>
+        <PackageProjectUrl>https://github.com/Basis-Theory/open-kms</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Basis-Theory/open-kms</RepositoryUrl>
+        <PackageTags>Azure,KeyVault,SDK,KMS,Key Management,Encryption</PackageTags>
+        <NuspecProperties>version=$(Version)</NuspecProperties>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <AssemblyVersion>1.0.0</AssemblyVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\OpenKMS\OpenKMS.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="../../README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+</Project>
