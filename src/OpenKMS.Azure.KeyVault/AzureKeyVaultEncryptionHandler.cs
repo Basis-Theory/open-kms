@@ -28,7 +28,7 @@ public class AzureKeyVaultEncryptionHandler<TKeyNameProvider> :
 
         var cryptoClient = new CryptographyClient(key.Key);
         var encryptResult = await cryptoClient.EncryptAsync(Options.EncryptionAlgorithm.ToString(), plaintext,
-                cancellationToken);
+            cancellationToken);
 
         return new EncryptResult(encryptResult.Ciphertext, Options.EncryptionAlgorithm.ToString(), key.ToJsonWebKey());
     }
@@ -79,17 +79,18 @@ public class AzureKeyVaultEncryptionHandler<TKeyNameProvider> :
         return key;
     }
 
-    private Task<Response<KeyVaultKey>> CreateRsaKey(string keyName, int? keySize, CancellationToken cancellationToken = default)
-     {
-         var createKeyOptions = new CreateRsaKeyOptions(keyName)
-         {
-             KeySize = keySize,
-         };
+    private Task<Response<KeyVaultKey>> CreateRsaKey(string keyName, int? keySize,
+        CancellationToken cancellationToken = default)
+    {
+        var createKeyOptions = new CreateRsaKeyOptions(keyName)
+        {
+            KeySize = keySize,
+        };
 
-         _setSharedCreateKeyOptions(createKeyOptions, Options);
+        _setSharedCreateKeyOptions(createKeyOptions, Options);
 
-         return _keyClient.CreateRsaKeyAsync(createKeyOptions, cancellationToken);
-     }
+        return _keyClient.CreateRsaKeyAsync(createKeyOptions, cancellationToken);
+    }
 
     private Task<Response<KeyVaultKey>> CreateEcKey(string keyName, CancellationToken cancellationToken = default)
     {
@@ -103,7 +104,8 @@ public class AzureKeyVaultEncryptionHandler<TKeyNameProvider> :
         return _keyClient.CreateEcKeyAsync(createKeyOptions, cancellationToken);
     }
 
-    private Task<Response<KeyVaultKey>> CreateOctKey(string keyName, int? keySize, CancellationToken cancellationToken = default)
+    private Task<Response<KeyVaultKey>> CreateOctKey(string keyName, int? keySize,
+        CancellationToken cancellationToken = default)
     {
         var createKeyOptions = new CreateOctKeyOptions(keyName)
         {
@@ -115,16 +117,17 @@ public class AzureKeyVaultEncryptionHandler<TKeyNameProvider> :
         return _keyClient.CreateOctKeyAsync(createKeyOptions, cancellationToken);
     }
 
-    private readonly Action<CreateKeyOptions, AzureKeyVaultEncryptionOptions> _setSharedCreateKeyOptions = (createKeyOptions, handlerOptions) =>
-    {
-        createKeyOptions.ExpiresOn = handlerOptions.KeyRotationInterval.HasValue
-            ? DateTimeOffset.Now.Add(handlerOptions.KeyRotationInterval.Value)
-            : null;
-        foreach (var keyOp in handlerOptions.KeyOperations)
+    private readonly Action<CreateKeyOptions, AzureKeyVaultEncryptionOptions> _setSharedCreateKeyOptions =
+        (createKeyOptions, handlerOptions) =>
         {
-            createKeyOptions.KeyOperations.Add(keyOp.ToString());
-        }
-    };
+            createKeyOptions.ExpiresOn = handlerOptions.KeyRotationInterval.HasValue
+                ? DateTimeOffset.Now.Add(handlerOptions.KeyRotationInterval.Value)
+                : null;
+            foreach (var keyOp in handlerOptions.KeyOperations)
+            {
+                createKeyOptions.KeyOperations.Add(keyOp.ToString());
+            }
+        };
 
     private static (string, string?) ParseKeyId(string keyId)
     {

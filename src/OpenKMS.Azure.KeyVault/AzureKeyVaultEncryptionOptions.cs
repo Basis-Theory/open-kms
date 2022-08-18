@@ -1,5 +1,3 @@
-
-
 using OpenKMS.Options;
 using OpenKMS.Structs;
 
@@ -17,7 +15,7 @@ public class AzureKeyVaultEncryptionOptions : EncryptionHandlerOptions
     {
         { KeyType.RSA, new[] { (int?)null, 2048, 3072, 4096 } },
         { KeyType.EC, new[] { (int?)null } },
-        { KeyType.OCT, new[] { (int?) 128, 192, 256 } },
+        { KeyType.OCT, new[] { (int?)128, 192, 256 } },
     };
 
     public override int? KeySize { get; set; } = 2048;

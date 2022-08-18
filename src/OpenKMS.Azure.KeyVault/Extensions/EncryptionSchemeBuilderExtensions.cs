@@ -37,7 +37,8 @@ public static class EncryptionSchemeBuilderExtensions
         return schemeBuilder;
     }
 
-    public static EncryptionSchemeBuilder AddKeyVaultContentEncryption<TKeyNameProvider>(this EncryptionSchemeBuilder schemeBuilder,
+    public static EncryptionSchemeBuilder AddKeyVaultContentEncryption<TKeyNameProvider>(
+        this EncryptionSchemeBuilder schemeBuilder,
         Action<AzureKeyVaultEncryptionOptions> configureOptions)
         where TKeyNameProvider : class, IKeyNameProvider
     {
