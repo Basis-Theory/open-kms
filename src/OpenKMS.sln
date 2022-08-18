@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenKMS", "OpenKMS\OpenKMS.csproj", "{B24DDE63-1915-4F36-998B-1A69F6ECBEE2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenKMS.Azure.KeyVault", "OpenKMS.Azure.KeyVault\OpenKMS.Azure.KeyVault.csproj", "{CCE0BC14-24DD-4AE8-957B-E3EAA76D9ADE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{B24DDE63-1915-4F36-998B-1A69F6ECBEE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B24DDE63-1915-4F36-998B-1A69F6ECBEE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B24DDE63-1915-4F36-998B-1A69F6ECBEE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCE0BC14-24DD-4AE8-957B-E3EAA76D9ADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCE0BC14-24DD-4AE8-957B-E3EAA76D9ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCE0BC14-24DD-4AE8-957B-E3EAA76D9ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCE0BC14-24DD-4AE8-957B-E3EAA76D9ADE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
