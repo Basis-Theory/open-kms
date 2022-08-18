@@ -31,7 +31,8 @@ jobs:
         run: make release
         env:
           GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_PAT }}
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+#          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }} # TODO publish to Nuget
 
       - name: Slack Release Alert
         uses: 8398a7/action-slack@v3

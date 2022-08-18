@@ -28,7 +28,7 @@
     [
       "@semantic-release/exec",
       {
-        "publishCmd": "dotnet nuget push ./output/*.nupkg --skip-duplicate -k ${process.env.NUGET_API_KEY} -s https://api.nuget.org/v3/index.json"
+        "publishCmd": "dotnet nuget push ./output/*.nupkg --skip-duplicate -k ${process.env.NUGET_API_KEY} -s https://nuget.pkg.github.com/Basis-Theory/index.json"
       }
     ],
     [
