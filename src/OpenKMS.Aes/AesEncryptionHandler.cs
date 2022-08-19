@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using Microsoft.Extensions.Options;
 using OpenKMS.Abstractions;
+using OpenKMS.Exceptions;
 using OpenKMS.Models;
 using OpenKMS.Structs;
 
@@ -39,24 +40,14 @@ public class AesEncryptionHandler : EncryptionHandler<AesEncryptionOptions>, IEn
 
         var ciphertext = aes.EncryptCbc(plaintext, iv);
 
-        var al = BitConverter.GetBytes(BitConverter.ToUInt64(additionalAuthenticatedData));
-        if (BitConverter.IsLittleEndian)
-            Array.Reverse(al);
-
-        var hmac = Options.EncryptionAlgorithm == EncryptionAlgorithm.A128CBC_HS256
-            ? new HMACSHA256(macKey)
-            : new HMACSHA512(macKey) as HMAC;
-
-        var bytesToHash = additionalAuthenticatedData.Concat(iv).Concat(ciphertext).Concat(al).ToArray();
-        var hash = hmac.ComputeHash(bytesToHash);
-        var tag = hash[..keyLength];
+        var authenticationTag = ComputeAuthenticationTag(macKey, additionalAuthenticatedData, iv, ciphertext);
 
         return Task.FromResult(new EncryptResult(ciphertext, Options.EncryptionAlgorithm,
             new JsonWebKey
             {
                 KeyType = KeyType.OCT,
                 K = key,
-            }, iv, authenticationTag: tag, additionalAuthenticatedData: additionalAuthenticatedData));
+            }, iv, authenticationTag: authenticationTag, additionalAuthenticatedData: additionalAuthenticatedData));
     }
 
     public override Task<byte[]> DecryptAsync(JsonWebKey key, byte[] ciphertext, byte[]? iv = null,
@@ -69,8 +60,20 @@ public class AesEncryptionHandler : EncryptionHandler<AesEncryptionOptions>, IEn
         if (iv == null)
             throw new ArgumentNullException(nameof(iv));
 
-        // TODO Verify integrity and authenticity
-        var encKey = key.K![..(key.K!.Length / 2)];
+        if (authenticationTag == null)
+            throw new ArgumentNullException(nameof(authenticationTag));
+
+        if (additionalAuthenticatedData == null)
+            throw new ArgumentNullException(nameof(additionalAuthenticatedData));
+
+        var secondaryKeyLength = key.K!.Length / 2;
+        var encKey = key.K![..secondaryKeyLength];
+        var macKey = key.K![secondaryKeyLength..];
+
+        var integrityCheckTag = ComputeAuthenticationTag(macKey, additionalAuthenticatedData, iv, ciphertext);
+
+        if (integrityCheckTag.Length != authenticationTag.Length || !integrityCheckTag.SequenceEqual(authenticationTag))
+            throw new IntegrityCheckFailedException();
 
         using var aes = System.Security.Cryptography.Aes.Create();
         aes.Key = encKey;
@@ -80,4 +83,21 @@ public class AesEncryptionHandler : EncryptionHandler<AesEncryptionOptions>, IEn
     }
 
     public override bool CanDecrypt(JsonWebKey key) => Options.EncryptionAlgorithm == key.Algorithm;
+
+    private byte[] ComputeAuthenticationTag(byte[] macKey, byte[] additionalAuthenticatedData, byte[] iv, byte[] ciphertext)
+    {
+        var al = BitConverter.GetBytes(BitConverter.ToUInt64(additionalAuthenticatedData));
+        if (BitConverter.IsLittleEndian)
+            Array.Reverse(al);
+
+        var hmac = Options.EncryptionAlgorithm == EncryptionAlgorithm.A128CBC_HS256
+            ? new HMACSHA256(macKey)
+            : new HMACSHA512(macKey) as HMAC;
+
+        var bytesToHash = additionalAuthenticatedData.Concat(iv).Concat(ciphertext).Concat(al).ToArray();
+        var hash = hmac.ComputeHash(bytesToHash);
+        var authenticationTag = hash[..macKey.Length];
+
+        return authenticationTag;
+    }
 }
