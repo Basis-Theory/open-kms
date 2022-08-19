@@ -69,8 +69,11 @@ public class AesEncryptionHandler : EncryptionHandler<AesEncryptionOptions>, IEn
         if (iv == null)
             throw new ArgumentNullException(nameof(iv));
 
+        // TODO Verify integrity and authenticity
+        var encKey = key.K![..(key.K!.Length / 2)];
+
         using var aes = System.Security.Cryptography.Aes.Create();
-        aes.Key = key.K!;
+        aes.Key = encKey;
         aes.IV = iv;
 
         return Task.FromResult(aes.DecryptCbc(ciphertext, iv));
