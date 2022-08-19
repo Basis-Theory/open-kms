@@ -80,7 +80,59 @@ Provide options implementations for:
 
 ## Usage
 
-Coming soon!
+### Dependency Injection
+
+To configure an instance of `IEncryptionService` that can be used throughout your project, call `AddEncryption` when registering services:
+```csharp
+// program.cs
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services
+    .AddEncryption()
+    .AddScheme<TContentEncryptionOptions, TContentHander, TKeyEncryptionOptions, TKeyHandler>("<scheme_name>",
+        contentEncrptionOptions => { ... },
+        keyEncryptionOptions => { ... }
+    ); // calls can be chained to .AddScheme<> to register more encryption schemes!
+```
+
+To inject an instance of `IEncryptionHandler` into your class for data encryption and/or decryption, 
+add a constructor dependency for `IEncryptionService`.
+```csharp
+public class MyAwesomeService() {
+    private readonly IEncryptionService _encryptionService;
+    private readonly IPersonRepository _repository;
+    
+    public MyAwesomeService(IEncryptionService encryptionService, IPersonRepository repository) {
+        _encryptionService = encryptionService;
+        _repository = repository;
+    }
+    
+    public async Task SavePerson(Person person, CancellationToken cancellationToken = default) {
+        JsonWebEncryption encryptedName = await _encryptionService.EncryptAsync(
+            person.Name,
+            "<scheme_name>",
+            cancellationToken);
+        
+        person.Name = null;
+        person.NameEncrypted = encryptedName.ToCompactSerializationFormat();
+        
+        await _repository.SavePersonAsync(person, cancellationToken);
+    }
+    
+    public async Task<Person> GetPersonById(string personId, CancellationToken cancellationToken = default) {
+        var foundPerson = await _repository.GetPersonAsync(personId, cancellationToken);
+        
+        JsonWebEncryption encryptedName = JsonWebEncryption.FromCompactSerializationFormat(person.NameEncrypted);
+        var decryptedName = await _encryptionService.DecryptAsync(encryptedName, cancellationToken);
+        
+        person.Name = Encoding.UTF8.GetString(decryptedName);
+        person.NameEncrypted = null;
+    
+        return person;
+    }
+}
+```
 
 ## Development
 
