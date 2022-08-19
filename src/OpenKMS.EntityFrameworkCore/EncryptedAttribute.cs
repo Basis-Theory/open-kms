@@ -3,7 +3,7 @@
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
 public class EncryptedAttribute : Attribute
 {
-    public string Scheme { get; init; }
+    public string? Scheme { get; init; }
 
     public EncryptedAttribute() { }
 
