@@ -37,7 +37,7 @@ public class AesEncryptionHandler : EncryptionHandler<AesEncryptionOptions>, IEn
         using var aes = System.Security.Cryptography.Aes.Create();
         aes.Key = encKey;
 
-        var ciphertext = aes.EncryptCbc(plaintext, iv, PaddingMode.PKCS7);
+        var ciphertext = aes.EncryptCbc(plaintext, iv);
 
         var al = BitConverter.GetBytes(BitConverter.ToUInt64(additionalAuthenticatedData));
         if (BitConverter.IsLittleEndian)
