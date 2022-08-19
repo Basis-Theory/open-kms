@@ -22,6 +22,7 @@ public class AzureKeyVaultEncryptionHandler<TKeyNameProvider> :
         : base(options, keyNameProvider) => _keyClient = keyClient;
 
     public override async Task<EncryptResult> EncryptAsync(byte[] plaintext,
+        byte[]? additionalAuthenticatedData = null,
         CancellationToken cancellationToken = default)
     {
         var key = await GetOrCreateKey(KeyNameProvider.GetKeyName(), cancellationToken);
@@ -34,6 +35,7 @@ public class AzureKeyVaultEncryptionHandler<TKeyNameProvider> :
     }
 
     public override async Task<byte[]> DecryptAsync(JsonWebKey key, byte[] ciphertext, byte[]? iv = null,
+        byte[]? authenticationTag = null, byte[]? additionalAuthenticatedData = null,
         CancellationToken cancellationToken = default)
     {
         if (key.KeyId == null)

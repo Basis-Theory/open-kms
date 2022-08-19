@@ -38,9 +38,11 @@ public abstract class EncryptionHandler<TOptions> : IEncryptionHandler where TOp
     /// </summary>
     public TOptions Options { get; private set; } = default!;
 
-    public abstract Task<EncryptResult> EncryptAsync(byte[] plaintext, CancellationToken cancellationToken = default);
+    public abstract Task<EncryptResult> EncryptAsync(byte[] plaintext, byte[]? additionalAuthenticatedData = null,
+        CancellationToken cancellationToken = default);
 
     public abstract Task<byte[]> DecryptAsync(JsonWebKey key, byte[] ciphertext, byte[]? iv = null,
+        byte[]? authenticationTag = null, byte[]? additionalAuthenticatedData = null,
         CancellationToken cancellationToken = default);
 
     public abstract bool CanDecrypt(JsonWebKey key);

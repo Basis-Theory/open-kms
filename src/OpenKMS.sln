@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenKMS", "OpenKMS\OpenKMS.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenKMS.Azure.KeyVault", "OpenKMS.Azure.KeyVault\OpenKMS.Azure.KeyVault.csproj", "{CCE0BC14-24DD-4AE8-957B-E3EAA76D9ADE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenKMS.Aes", "OpenKMS.Aes\OpenKMS.Aes.csproj", "{7DA5F338-1039-4CD2-8578-E80446CA5E8F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{CCE0BC14-24DD-4AE8-957B-E3EAA76D9ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCE0BC14-24DD-4AE8-957B-E3EAA76D9ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCE0BC14-24DD-4AE8-957B-E3EAA76D9ADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DA5F338-1039-4CD2-8578-E80446CA5E8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DA5F338-1039-4CD2-8578-E80446CA5E8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DA5F338-1039-4CD2-8578-E80446CA5E8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DA5F338-1039-4CD2-8578-E80446CA5E8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
