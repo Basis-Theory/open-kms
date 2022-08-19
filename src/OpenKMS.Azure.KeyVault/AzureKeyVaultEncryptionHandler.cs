@@ -11,21 +11,23 @@ using JsonWebKey = OpenKMS.Models.JsonWebKey;
 
 namespace OpenKMS.Azure.KeyVault;
 
-public class AzureKeyVaultEncryptionHandler<TKeyNameProvider> :
-    EncryptionHandler<AzureKeyVaultEncryptionOptions, TKeyNameProvider>, IEncryptionHandler
-    where TKeyNameProvider : IKeyNameProvider
+public class AzureKeyVaultEncryptionHandler :
+    EncryptionHandler<AzureKeyVaultEncryptionOptions>, IEncryptionHandler
 {
     private readonly KeyClient _keyClient;
 
-    public AzureKeyVaultEncryptionHandler(KeyClient keyClient, IOptionsMonitor<AzureKeyVaultEncryptionOptions> options,
-        TKeyNameProvider keyNameProvider)
-        : base(options, keyNameProvider) => _keyClient = keyClient;
+    public AzureKeyVaultEncryptionHandler(KeyClient keyClient, IOptionsMonitor<AzureKeyVaultEncryptionOptions> options)
+        : base(options) => _keyClient = keyClient;
 
     public override async Task<EncryptResult> EncryptAsync(byte[] plaintext,
         byte[]? additionalAuthenticatedData = null,
         CancellationToken cancellationToken = default)
     {
-        var key = await GetOrCreateKey(KeyNameProvider.GetKeyName(), cancellationToken);
+        var keyName = Options.KeyName;
+        if (string.IsNullOrEmpty(keyName))
+            throw new ArgumentException("Key name is required");
+
+        var key = await GetOrCreateKey(keyName, cancellationToken);
 
         var cryptoClient = new CryptographyClient(key.Key);
         var encryptResult = await cryptoClient.EncryptAsync(Options.EncryptionAlgorithm.ToString(), plaintext,

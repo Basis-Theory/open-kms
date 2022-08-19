@@ -9,23 +9,6 @@ namespace OpenKMS;
 /// An opinionated abstraction for implementing <see cref="IEncryptionHandler"/>.
 /// </summary>
 /// <typeparam name="TOptions">The type for the options used to configure the encryption handler.</typeparam>
-/// <typeparam name="TKeyNameProvider">The type of provider used to generate key names.</typeparam>
-public abstract class EncryptionHandler<TOptions, TKeyNameProvider> : EncryptionHandler<TOptions>
-    where TOptions : EncryptionHandlerOptions, new()
-    where TKeyNameProvider : IKeyNameProvider
-{
-    protected TKeyNameProvider KeyNameProvider { get; }
-
-    protected EncryptionHandler(IOptionsMonitor<TOptions> options, TKeyNameProvider keyNameProvider) : base(options)
-    {
-        KeyNameProvider = keyNameProvider;
-    }
-}
-
-/// <summary>
-/// An opinionated abstraction for implementing <see cref="IEncryptionHandler"/>.
-/// </summary>
-/// <typeparam name="TOptions">The type for the options used to configure the encryption handler.</typeparam>
 public abstract class EncryptionHandler<TOptions> : IEncryptionHandler where TOptions : EncryptionHandlerOptions, new()
 {
     /// <summary>
