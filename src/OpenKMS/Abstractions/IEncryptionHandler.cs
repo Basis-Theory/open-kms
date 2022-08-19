@@ -10,9 +10,11 @@ public interface IEncryptionHandler
     /// <param name="scheme">The <see cref="EncryptionScheme"/> scheme.</param>
     Task InitializeAsync(EncryptionScheme scheme);
 
-    Task<EncryptResult> EncryptAsync(byte[] plaintext, CancellationToken cancellationToken = default);
+    Task<EncryptResult> EncryptAsync(byte[] plaintext, byte[]? additionalAuthenticatedData = null,
+        CancellationToken cancellationToken = default);
 
     Task<byte[]> DecryptAsync(JsonWebKey key, byte[] ciphertext, byte[]? iv = null,
+        byte[]? authenticationTag = null, byte[]? additionalAuthenticatedData = null,
         CancellationToken cancellationToken = default);
 
     bool CanDecrypt(JsonWebKey key);
