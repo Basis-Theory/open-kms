@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenKMS.Abstractions;
 using OpenKMS.Builders;
-using OpenKMS.Options;
 using OpenKMS.Providers;
 
 namespace OpenKMS.Extensions.DependencyInjection;

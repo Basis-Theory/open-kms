@@ -1,6 +1,6 @@
 using OpenKMS.Builders;
 
-namespace OpenKMS.Options;
+namespace OpenKMS;
 
 /// <summary>
 /// Options to configure Encryption

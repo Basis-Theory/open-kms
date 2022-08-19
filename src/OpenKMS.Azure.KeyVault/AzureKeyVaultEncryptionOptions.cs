@@ -1,4 +1,3 @@
-using OpenKMS.Options;
 using OpenKMS.Structs;
 
 namespace OpenKMS.Azure.KeyVault;

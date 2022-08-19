@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Options;
 using OpenKMS.Abstractions;
 using OpenKMS.Models;
-using OpenKMS.Options;
 
 namespace OpenKMS;
 

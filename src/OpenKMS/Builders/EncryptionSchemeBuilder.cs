@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenKMS.Abstractions;
-using OpenKMS.Options;
 
 namespace OpenKMS.Builders;
 
