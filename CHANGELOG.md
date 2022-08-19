@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/Basis-Theory/open-kms/compare/v1.0.0...v1.1.0) (2022-08-19)
+
+
+### Bug Fixes
+
+* add readme to package contents ([#2](https://github.com/Basis-Theory/open-kms/issues/2)) ([ca7dddc](https://github.com/Basis-Theory/open-kms/commit/ca7dddcb1e6c55910460108b5504bdae9549187f))
+
+
+### Features
+
+* add AES implementation for A128CBC_HS256 and A256CBC_HS512 ([143a6e7](https://github.com/Basis-Theory/open-kms/commit/143a6e7119cd08b81161dc9a20eb83c3ff6f1158))
+
 # 1.0.0 (2022-08-18)
 
 
