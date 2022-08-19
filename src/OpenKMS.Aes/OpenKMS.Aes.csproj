@@ -19,4 +19,8 @@
       <ProjectReference Include="..\OpenKMS\OpenKMS.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="../../README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
 </Project>
