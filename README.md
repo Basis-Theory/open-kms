@@ -27,7 +27,56 @@ Install-Package OpenKMS
 
 ## Documentation
 
-Coming soon!
+OpenKMS is an encryption abstraction based on the [Json Web Encryption (JWE)](https://datatracker.ietf.org/doc/html/rfc7516), 
+[Json Web Algorithm (JWA)](https://datatracker.ietf.org/doc/html/rfc7518), and [Json Web Key (JWK)](https://datatracker.ietf.org/doc/html/rfc7517) specifications.
+The [IEncryptionService](./src/OpenKMS/Abstractions/IEncryptionService.cs) interface exposes methods for encrypt and decrypt operations.
+```csharp
+public interface IEncryptionService
+{
+    Task<JsonWebEncryption> EncryptAsync(byte[] plaintext, string? scheme, CancellationToken cancellationToken = default);
+    Task<JsonWebEncryption> EncryptAsync(string plaintext, string? scheme, CancellationToken cancellationToken = default);
+
+    Task<byte[]> DecryptAsync(JsonWebEncryption encryption, CancellationToken cancellationToken = default);
+    Task<string> DecryptStringAsync(JsonWebEncryption encryption, CancellationToken cancellationToken = default);
+}
+```
+
+[Encryption schemes](./src/OpenKMS/EncryptionScheme.cs) are used to register encryption handlers and pre-configure options (e.g. KeyType, KeySize, Algorithm) used when calling `EncryptAsync`.
+```csharp
+// IServiceCollection services;
+
+services.AddEncryption(o =>
+{
+    o.DefaultScheme = "default";
+}).AddScheme<AesEncryptionOptions, AesEncryptionHandler, AzureKeyVaultEncryptionOptions, AzureKeyVaultEncryptionHandler>("default", 
+    contentEncryptionOptions => {
+        contentEncryptionOptions.EncryptionAlgorithm = EncryptionAlgorithm.A256CBC_HS512;
+        contentEncryptionOptions.KeySize = 256;
+        contentEncryptionOptions.KeyType = KeyType.OCT;
+    },
+    keyEncrptionOptions => {
+        keyEncrptionOptions.KeySize = 4096;
+        keyEncrptionOptions.KeyType = KeyType.RSA;
+        keyEncrptionOptions.KeyName = "<key_name>";
+        keyEncrptionOptions.EncryptionAlgorithm = EncryptionAlgorithm.RSA_OAEP;
+    }
+);
+```
+
+To derive a new encryption handler implementation, extend the [EncryptionHandler<TOptions>](./src/OpenKMS/EncryptionHandler.cs)
+and [EncryptionHandlerOptions](./src/OpenKMS/EncryptionHandlerOptions.cs) abstract classes. 
+
+Provide handler implementations for:
+- `Task<EncryptResult> EncryptAsync(byte[], byte[]?, CancellationToken)`
+- `Task<byte[]> DecryptAsync(JsonWebKey, byte[], byte[]?, byte[]?, byte[]?, CancellationToken)`
+- `bool CanDecrypt(JsonWebKey)`
+
+Provide options implementations for:
+- `IList<EncryptionAlgorithm> ValidEncryptionAlgorithms`
+- `Dictionary<KeyType, int?[]> ValidKeyTypeSizes`
+- `EncryptionAlgorithm EncryptionAlgorithm`
+- `KeyType KeyType`
+- `int? KeySize`
 
 ## Usage
 
