@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/Basis-Theory/open-kms/compare/v1.0.1...v1.0.2) (2022-08-19)
+
+
+### Bug Fixes
+
+* add documentation to README.md and remove OpenKMS.Options namespace ([#5](https://github.com/Basis-Theory/open-kms/issues/5)) ([43a17c5](https://github.com/Basis-Theory/open-kms/commit/43a17c56fc107caf978495736e93d90d502ce1ce))
+
 ## [1.0.1](https://github.com/Basis-Theory/open-kms/compare/v1.0.0...v1.0.1) (2022-08-19)
 
 
