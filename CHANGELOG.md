@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Basis-Theory/open-kms/compare/v1.0.2...v1.1.0) (2022-08-19)
+
+
+### Features
+
+* Add Entity Framework Core encryption handler ([#6](https://github.com/Basis-Theory/open-kms/issues/6)) ([b461ec7](https://github.com/Basis-Theory/open-kms/commit/b461ec703a61e381887c5c236067983cd1bef1af))
+
 ## [1.0.2](https://github.com/Basis-Theory/open-kms/compare/v1.0.1...v1.0.2) (2022-08-19)
 
 
