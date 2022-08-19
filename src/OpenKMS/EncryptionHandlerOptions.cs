@@ -1,7 +1,7 @@
 using OpenKMS.Exceptions;
 using OpenKMS.Structs;
 
-namespace OpenKMS.Options;
+namespace OpenKMS;
 
 public abstract class EncryptionHandlerOptions
 {
