@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/Basis-Theory/open-kms/compare/v1.1.0...v1.2.0) (2022-08-19)
+
+
+### Features
+
+* add integrity check to aes decryption ([#7](https://github.com/Basis-Theory/open-kms/issues/7)) ([130bc68](https://github.com/Basis-Theory/open-kms/commit/130bc680525b9eef289eeec3ea63f7db1a72949c))
+
 # [1.1.0](https://github.com/Basis-Theory/open-kms/compare/v1.0.2...v1.1.0) (2022-08-19)
 
 
