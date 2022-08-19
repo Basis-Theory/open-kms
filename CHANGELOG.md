@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/Basis-Theory/open-kms/compare/v1.0.0...v1.0.1) (2022-08-19)
+
+
+### Bug Fixes
+
+* destruct JWE key for encryption and mac key parts ([#4](https://github.com/Basis-Theory/open-kms/issues/4)) ([0ddac7b](https://github.com/Basis-Theory/open-kms/commit/0ddac7b1aa461c82e1c8fac36af8c35797420581))
+
 # 1.0.0 (2022-08-19)
 
 
