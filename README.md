@@ -134,6 +134,45 @@ public class MyAwesomeService() {
 }
 ```
 
+### Entity Framework
+
+To automatically encrypt and decrypt a property when utilizing Entity Framework Core, you may optionally annotate your data models with the `Encrypted` attribute:
+
+```csharp
+public class Bank
+{
+	public int Id { get; set; }
+	
+	[Encrypted] // Utilizes registered DefaultScheme
+	public string RoutingNumber { get; set; }
+	
+	[Encrypted("AccountNumber")] // Utilizes registered AccountNumber scheme
+	public string AccountNumber { get; set; }
+}
+```
+
+You can then register the encryption service with your Entity Framework DbContext:
+
+```csharp
+public class DatabaseContext : DbContext
+{
+	private readonly IEncryptionService _encryptionService;
+
+	public DbSet<Bank> Banks { get; set; }
+	
+	public DatabaseContext(DbContextOptions options, IEncryptionService encryptionService)
+		: base(options)
+	{
+		_encryptionService = encryptionService;
+	}
+	
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
+	{
+		modelBuilder.UseEncryption(_encryptionService);
+	}
+}
+```
+
 ## Development
 
 The provided scripts with the SDK will check for all dependencies, start docker, build the solution, and run all tests.

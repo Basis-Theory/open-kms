@@ -2,7 +2,6 @@ using System.Text;
 using OpenKMS.Abstractions;
 using OpenKMS.Extensions;
 using OpenKMS.Models;
-using OpenKMS.Providers;
 using OpenKMS.Structs;
 using JsonWebKey = OpenKMS.Models.JsonWebKey;
 
@@ -26,6 +25,12 @@ public class EncryptionService : IEncryptionService
     /// Used to resolve IEncryptionHandler instances.
     /// </summary>
     public IEncryptionHandlerProvider Handlers { get; }
+
+    public JsonWebEncryption Encrypt(byte[] plaintext, string? scheme) =>
+        EncryptAsync(plaintext, scheme, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+
+    public JsonWebEncryption Encrypt(string plaintext, string? scheme) =>
+        EncryptAsync(plaintext, scheme, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
 
     public async Task<JsonWebEncryption> EncryptAsync(byte[] plaintext, string? scheme,
         CancellationToken cancellationToken = default)
@@ -80,6 +85,12 @@ public class EncryptionService : IEncryptionService
     {
         return EncryptAsync(Encoding.UTF8.GetBytes(plaintext), scheme, cancellationToken);
     }
+
+    public byte[] Decrypt(JsonWebEncryption encryption) => DecryptAsync(encryption, CancellationToken.None)
+        .ConfigureAwait(false).GetAwaiter().GetResult();
+
+    public string DecryptString(JsonWebEncryption encryption) => DecryptStringAsync(encryption, CancellationToken.None)
+        .ConfigureAwait(false).GetAwaiter().GetResult();
 
     public async Task<byte[]> DecryptAsync(JsonWebEncryption encryption, CancellationToken cancellationToken = default)
     {
