@@ -10,8 +10,6 @@ namespace OpenKMS.Structs;
 /// </summary>
 public readonly struct EncryptionAlgorithm : IEquatable<EncryptionAlgorithm>
 {
-
-
     private readonly string _value;
 
     /// <summary>
@@ -215,13 +213,13 @@ public readonly struct EncryptionAlgorithm : IEquatable<EncryptionAlgorithm>
     public static bool operator !=(EncryptionAlgorithm left, EncryptionAlgorithm right) => !left.Equals(right);
 
     /// <summary>
-    /// Converts a string to a <see cref="KeyType"/>.
+    /// Converts a string to a <see cref="EncryptionAlgorithm"/>.
     /// </summary>
     /// <param name="value">The string value to convert.</param>
     public static implicit operator EncryptionAlgorithm(string value) => new EncryptionAlgorithm(value);
 
     /// <inheritdoc/>
-    public override bool Equals(object? obj) => obj is KeyType other && Equals(other);
+    public override bool Equals(object? obj) => obj is EncryptionAlgorithm other && Equals(other);
 
     /// <inheritdoc/>
     public bool Equals(EncryptionAlgorithm other) => string.Equals(_value, other._value, StringComparison.Ordinal);

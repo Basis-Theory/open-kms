@@ -1,0 +1,12 @@
+
+version: '3.9'
+
+services:
+  aws-kms-emulator:
+    image: nsmithuk/local-kms:latest
+    ports:
+      - 7071:7071
+    environment:
+      - PORT=7071
+      - KMS_ACCOUNT_ID=111122223333
+      - KMS_REGION=eu-west-2

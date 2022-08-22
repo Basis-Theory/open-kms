@@ -4,7 +4,6 @@ using Amazon.KeyManagementService.Model;
 using Microsoft.Extensions.Options;
 using OpenKMS.Abstractions;
 using OpenKMS.AWS.KeyManagementService.Extensions;
-using OpenKMS.Constants;
 using OpenKMS.Exceptions;
 using OpenKMS.Models;
 using OpenKMS.Structs;
@@ -29,10 +28,7 @@ public class AwsRsaEncryptionHandler :
         if (string.IsNullOrEmpty(keyName))
             throw new ArgumentException("Key name is required");
 
-
         var key = await GetOrCreateKey(keyName, cancellationToken);
-
-
 
         using var plaintextStream = new MemoryStream(plaintext);
         var result = await _kmsClient.EncryptAsync(new EncryptRequest
@@ -41,10 +37,8 @@ public class AwsRsaEncryptionHandler :
                 EncryptionAlgorithm = Options.EncryptionAlgorithm.ToEncryptionAlgorithmSpec(),
                 KeyId = key.KeyId,
             }, cancellationToken);
-        var ciphertextReader = new StreamReader(result.CiphertextBlob);
-        var ciphertext = await ciphertextReader.ReadToEndAsync();
 
-        return new EncryptResult(Convert.FromBase64String(ciphertext), Options.EncryptionAlgorithm, key);
+        return new EncryptResult(result.CiphertextBlob.ToArray(), Options.EncryptionAlgorithm, key);
     }
 
     public override async Task<byte[]> DecryptAsync(JsonWebKey key, byte[] ciphertext, byte[]? iv = null,
@@ -56,16 +50,17 @@ public class AwsRsaEncryptionHandler :
         var result = await _kmsClient.DecryptAsync(new DecryptRequest
         {
             CiphertextBlob = ciphertextStream,
-            EncryptionAlgorithm = key.Algorithm.ToEncryptionAlgorithmSpec(),
+            EncryptionAlgorithm = (key.Algorithm ?? Options.EncryptionAlgorithm).ToEncryptionAlgorithmSpec(),
             KeyId = key.KeyId
         }, cancellationToken);
-        throw new NotImplementedException();
+
+        return result.Plaintext.ToArray();
     }
 
-    public override bool CanDecrypt(JsonWebKey key)
-    {
-        throw new NotImplementedException();
-    }
+    public override bool CanDecrypt(JsonWebKey key) =>
+        key.KeyId != null &&
+        key.KeyId.StartsWith("arn:") &&
+        Options.EncryptionAlgorithm == key.Algorithm;
 
     private static readonly ImmutableList<KeySpec> SupportedKeySpecs = new List<KeySpec>()
     {
@@ -77,7 +72,8 @@ public class AwsRsaEncryptionHandler :
         JsonWebKey key;
         try
         {
-            var describeKeyResponse = await _kmsClient.DescribeKeyAsync(keyName, cancellationToken);
+            var lookupKeyId = keyName.StartsWith("arn:") || keyName.StartsWith("alias/") ? keyName : $"alias/{keyName}";
+            var describeKeyResponse = await _kmsClient.DescribeKeyAsync(lookupKeyId, cancellationToken);
 
             if (!SupportedKeySpecs.Contains(describeKeyResponse.KeyMetadata.KeySpec))
             {
@@ -108,6 +104,13 @@ public class AwsRsaEncryptionHandler :
             {
                 KeyUsage = KeyUsageType.ENCRYPT_DECRYPT,
                 KeySpec = keySpec
+            }, cancellationToken);
+
+            var aliasName = Options.KeyName.StartsWith("alias/") ? Options.KeyName : $"alias/{Options.KeyName}";
+            await _kmsClient.CreateAliasAsync(new CreateAliasRequest
+            {
+                AliasName = aliasName,
+                TargetKeyId = createKeyResponse.KeyMetadata.KeyId,
             }, cancellationToken);
 
             key = new JsonWebKey

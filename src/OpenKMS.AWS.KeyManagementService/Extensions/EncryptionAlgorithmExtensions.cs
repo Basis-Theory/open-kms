@@ -6,11 +6,6 @@ namespace OpenKMS.AWS.KeyManagementService.Extensions;
 
 public static class EncryptionAlgorithmExtensions
 {
-    public static EncryptionAlgorithmSpec? ToEncryptionAlgorithmSpec(this EncryptionAlgorithm? algorithm)
-    {
-        return algorithm == null ? null : algorithm.ToEncryptionAlgorithmSpec();
-    }
-
     public static EncryptionAlgorithmSpec ToEncryptionAlgorithmSpec(this EncryptionAlgorithm algorithm) =>
         algorithm.ToString() switch
         {

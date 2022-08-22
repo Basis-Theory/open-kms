@@ -14,7 +14,7 @@ public class AwsRsaEncryptionOptions: EncryptionHandlerOptions
     {
         { KeyType.RSA, new int?[] { 2048, 3072, 4096 } }
     };
-    public override EncryptionAlgorithm EncryptionAlgorithm { get; set; }
+    public override EncryptionAlgorithm EncryptionAlgorithm { get; set; } = EncryptionAlgorithm.RSA_OAEP;
     public override KeyType KeyType { get; set; } = KeyType.RSA;
     public override int? KeySize { get; set; } = 2048;
 
