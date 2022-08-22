@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AWSSDK.KeyManagementService" Version="3.7.4.12" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\OpenKMS\OpenKMS.csproj" />
+    </ItemGroup>
+
+</Project>
