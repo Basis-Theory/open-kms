@@ -3,10 +3,12 @@ using Amazon.KeyManagementService;
 using Amazon.KeyManagementService.Model;
 using Bogus;
 using FluentAssertions;
-using Microsoft.Extensions.Options;
-using Moq;
+using Microsoft.Extensions.DependencyInjection;
+using OpenKMS.Aes.Extensions;
+using OpenKMS.AWS.KeyManagementService.Extensions;
 using OpenKMS.AWS.KeyManagementService.Rsa;
 using OpenKMS.Exceptions;
+using OpenKMS.Extensions.DependencyInjection;
 using OpenKMS.Structs;
 using OpenKMS.UnitTests.AWS.Helpers;
 
@@ -16,25 +18,16 @@ public class AwsRsaEncryptionHandlerTests
 {
     private readonly Randomizer _randomizer = new();
     private readonly EncryptionHandler<AwsRsaEncryptionOptions> _handler;
-    private readonly Mock<IOptionsMonitor<AwsRsaEncryptionOptions>> _handlerOptionsMonitor;
-    private readonly AwsRsaEncryptionOptions _handlerOptions;
     private readonly string _keyName;
     private readonly string _schemeName;
     private readonly AmazonKeyManagementServiceClient _amazonKeyManagementServiceClient;
 
      public AwsRsaEncryptionHandlerTests()
      {
+         IServiceCollection services = new ServiceCollection();
+
          _keyName = _randomizer.String2(10, 20);
          _schemeName = _randomizer.String2(10, 20);
-
-         _handlerOptions = new AwsRsaEncryptionOptions
-         {
-             KeyName = _keyName
-         };
-         _handlerOptionsMonitor = new Mock<IOptionsMonitor<AwsRsaEncryptionOptions>>();
-         _handlerOptionsMonitor.Setup(x => x.Get(_schemeName))
-             .Returns(_handlerOptions);
-
          _amazonKeyManagementServiceClient = new AmazonKeyManagementServiceClient(new LocalAwsCredentials(),
              new AmazonKeyManagementServiceConfig
              {
@@ -43,7 +36,17 @@ public class AwsRsaEncryptionHandlerTests
                  ServiceURL = "http://localhost:7071/",
              });
 
-         _handler = new AwsRsaEncryptionHandler(_amazonKeyManagementServiceClient, _handlerOptionsMonitor.Object);
+         services.AddTransient(_ => _amazonKeyManagementServiceClient);
+         services.AddEncryption()
+             .AddScheme(_schemeName, options =>
+             {
+                 options.AddAesContentEncryption(aesOptions => aesOptions.KeySize = 256);
+                 options.AddAwsRsaKeyEncryption(rsaOptions => rsaOptions.KeyName = _keyName);
+             });
+
+         var provider = services.BuildServiceProvider();
+
+         _handler = provider.GetRequiredService<AwsRsaEncryptionHandler>();
      }
 
      [Fact]
@@ -95,14 +98,16 @@ public class AwsRsaEncryptionHandlerTests
      [Fact]
      public async Task ShouldLookupKeyByAliasWhenKeyNameIsPrefixedWithAlias()
      {
+         await _handler.InitializeAsync(new EncryptionScheme(_schemeName, typeof(AwsRsaEncryptionHandler), typeof(AwsRsaEncryptionHandler)));
          var existingKey = await _amazonKeyManagementServiceClient.CreateKeyAsync(new CreateKeyRequest
          {
              KeySpec = KeySpec.RSA_2048,
              KeyUsage = KeyUsageType.ENCRYPT_DECRYPT
          });
-         _handlerOptions.KeyName = $"alias/{_keyName}";
+         var alias = $"alias/{_keyName}";
+         _handler.Options.KeyName = alias;
 
-         await _amazonKeyManagementServiceClient.CreateAliasAsync(_handlerOptions.KeyName, existingKey.KeyMetadata.Arn);
+         await _amazonKeyManagementServiceClient.CreateAliasAsync(alias, existingKey.KeyMetadata.Arn);
 
          await _handler.InitializeAsync(new EncryptionScheme(_schemeName, typeof(AwsRsaEncryptionHandler), typeof(AwsRsaEncryptionHandler)));
 
@@ -118,13 +123,15 @@ public class AwsRsaEncryptionHandlerTests
      [Fact]
      public async Task ShouldThrowExceptionWhenKeyProvidedIsNotSupportedKeySpec()
      {
+         await _handler.InitializeAsync(new EncryptionScheme(_schemeName, typeof(AwsRsaEncryptionHandler), typeof(AwsRsaEncryptionHandler)));
          var existingKey = await _amazonKeyManagementServiceClient.CreateKeyAsync(new CreateKeyRequest
          {
              KeySpec = KeySpec.SYMMETRIC_DEFAULT,
              KeyUsage = KeyUsageType.ENCRYPT_DECRYPT
          });
-         _handlerOptions.KeyName = $"alias/{_keyName}";
-         await _amazonKeyManagementServiceClient.CreateAliasAsync(_handlerOptions.KeyName, existingKey.KeyMetadata.Arn);
+         var alias = $"alias/{_keyName}";
+         _handler.Options.KeyName = alias;
+         await _amazonKeyManagementServiceClient.CreateAliasAsync(alias, existingKey.KeyMetadata.Arn);
 
          await _handler.InitializeAsync(new EncryptionScheme(_schemeName, typeof(AwsRsaEncryptionHandler), typeof(AwsRsaEncryptionHandler)));
 
