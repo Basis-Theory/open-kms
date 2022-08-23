@@ -10,15 +10,15 @@ using OpenKMS.Structs;
 
 namespace OpenKMS.AWS.KeyManagementService;
 
-public class AwsRsaEncryptionHandler :
-    EncryptionHandler<AwsRsaEncryptionOptions>, IEncryptionHandler
+public abstract class BaseAwsEncryptionHandler<TOptions> :
+    EncryptionHandler<TOptions>, IEncryptionHandler where TOptions : BaseAwsEncryptionOptions, new()
 {
-    private readonly AmazonKeyManagementServiceClient _kmsClient;
+    protected readonly AmazonKeyManagementServiceClient KmsClient;
 
-    public AwsRsaEncryptionHandler(AmazonKeyManagementServiceClient kmsClient,
-        IOptionsMonitor<AwsRsaEncryptionOptions> options) : base(options)
+    protected BaseAwsEncryptionHandler(AmazonKeyManagementServiceClient kmsClient,
+        IOptionsMonitor<TOptions> options) : base(options)
     {
-        _kmsClient = kmsClient;
+        KmsClient = kmsClient;
     }
 
     public override async Task<EncryptResult> EncryptAsync(byte[] plaintext, byte[]? additionalAuthenticatedData = null,
@@ -31,7 +31,7 @@ public class AwsRsaEncryptionHandler :
         var key = await GetOrCreateKey(keyName, cancellationToken);
 
         using var plaintextStream = new MemoryStream(plaintext);
-        var result = await _kmsClient.EncryptAsync(new EncryptRequest
+        var result = await KmsClient.EncryptAsync(new EncryptRequest
             {
                 Plaintext = plaintextStream,
                 EncryptionAlgorithm = Options.EncryptionAlgorithm.ToEncryptionAlgorithmSpec(),
@@ -47,7 +47,7 @@ public class AwsRsaEncryptionHandler :
     {
         using var ciphertextStream = new MemoryStream(ciphertext);
 
-        var result = await _kmsClient.DecryptAsync(new DecryptRequest
+        var result = await KmsClient.DecryptAsync(new DecryptRequest
         {
             CiphertextBlob = ciphertextStream,
             EncryptionAlgorithm = (key.Algorithm ?? Options.EncryptionAlgorithm).ToEncryptionAlgorithmSpec(),
@@ -62,10 +62,7 @@ public class AwsRsaEncryptionHandler :
         key.KeyId.StartsWith("arn:") &&
         Options.EncryptionAlgorithm == key.Algorithm;
 
-    private static readonly ImmutableList<KeySpec> SupportedKeySpecs = new List<KeySpec>()
-    {
-        KeySpec.RSA_2048, KeySpec.RSA_3072, KeySpec.RSA_4096
-    }.ToImmutableList();
+    protected abstract ImmutableList<KeySpec> SupportedKeySpecs { get; }
 
     private async Task<JsonWebKey> GetOrCreateKey(string keyName, CancellationToken cancellationToken = default)
     {
@@ -73,7 +70,7 @@ public class AwsRsaEncryptionHandler :
         try
         {
             var lookupKeyId = keyName.StartsWith("arn:") || keyName.StartsWith("alias/") ? keyName : $"alias/{keyName}";
-            var describeKeyResponse = await _kmsClient.DescribeKeyAsync(lookupKeyId, cancellationToken);
+            var describeKeyResponse = await KmsClient.DescribeKeyAsync(lookupKeyId, cancellationToken);
 
             if (!SupportedKeySpecs.Contains(describeKeyResponse.KeyMetadata.KeySpec))
             {
@@ -85,29 +82,22 @@ public class AwsRsaEncryptionHandler :
             {
                 KeyId = describeKeyResponse.KeyMetadata.Arn,
                 KeyOperations = MapKeyUsageToKeyOps(describeKeyResponse.KeyMetadata.KeyUsage),
-                KeyType = KeyType.RSA,
+                KeyType = Options.KeyType,
             };
         }
         catch (NotFoundException ex)
         {
             // TODO error logging
-            var keySpec = Options.KeySize switch
-            {
-                2048 => KeySpec.RSA_2048,
-                3072 => KeySpec.RSA_3072,
-                4096 => KeySpec.RSA_4096,
-                null => KeySpec.RSA_2048,
-                _ => throw new ArgumentOutOfRangeException(),
-            };
+            var keySpec = Options.GetKeySpec();
 
-            var createKeyResponse = await _kmsClient.CreateKeyAsync(new CreateKeyRequest
+            var createKeyResponse = await KmsClient.CreateKeyAsync(new CreateKeyRequest
             {
                 KeyUsage = KeyUsageType.ENCRYPT_DECRYPT,
                 KeySpec = keySpec
             }, cancellationToken);
 
             var aliasName = Options.KeyName.StartsWith("alias/") ? Options.KeyName : $"alias/{Options.KeyName}";
-            await _kmsClient.CreateAliasAsync(new CreateAliasRequest
+            await KmsClient.CreateAliasAsync(new CreateAliasRequest
             {
                 AliasName = aliasName,
                 TargetKeyId = createKeyResponse.KeyMetadata.KeyId,
@@ -117,7 +107,7 @@ public class AwsRsaEncryptionHandler :
             {
                 KeyId = createKeyResponse.KeyMetadata.Arn,
                 KeyOperations = MapKeyUsageToKeyOps(createKeyResponse.KeyMetadata.KeyUsage),
-                KeyType = KeyType.RSA,
+                KeyType = Options.KeyType,
             };
         }
 

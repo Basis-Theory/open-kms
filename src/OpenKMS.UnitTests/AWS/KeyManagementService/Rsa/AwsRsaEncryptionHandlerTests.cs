@@ -5,7 +5,8 @@ using Bogus;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
-using OpenKMS.AWS.KeyManagementService;
+using OpenKMS.AWS.KeyManagementService.Rsa;
+using OpenKMS.Exceptions;
 using OpenKMS.Structs;
 using OpenKMS.UnitTests.AWS.Helpers;
 
@@ -48,13 +49,6 @@ public class AwsRsaEncryptionHandlerTests
      [Fact]
      public async Task ShouldReturnEncryptResultWithInformationRequiredToDecrypt()
      {
-         var existingKey = await _amazonKeyManagementServiceClient.CreateKeyAsync(new CreateKeyRequest
-         {
-             KeySpec = KeySpec.RSA_2048,
-             KeyUsage = KeyUsageType.ENCRYPT_DECRYPT
-         });
-         await _amazonKeyManagementServiceClient.CreateAliasAsync(_keyName, existingKey.KeyMetadata.Arn);
-
          await _handler.InitializeAsync(new EncryptionScheme(_schemeName, typeof(AwsRsaEncryptionHandler), typeof(AwsRsaEncryptionHandler)));
 
          var plaintextBytes = new byte[32];
@@ -119,5 +113,26 @@ public class AwsRsaEncryptionHandlerTests
 
          encryptResult.Key.Should().NotBeNull();
          encryptResult.Key!.KeyId.Should().Be(existingKey.KeyMetadata.Arn);
+     }
+
+     [Fact]
+     public async Task ShouldThrowExceptionWhenKeyProvidedIsNotSupportedKeySpec()
+     {
+         var existingKey = await _amazonKeyManagementServiceClient.CreateKeyAsync(new CreateKeyRequest
+         {
+             KeySpec = KeySpec.SYMMETRIC_DEFAULT,
+             KeyUsage = KeyUsageType.ENCRYPT_DECRYPT
+         });
+         _handlerOptions.KeyName = $"alias/{_keyName}";
+         await _amazonKeyManagementServiceClient.CreateAliasAsync(_handlerOptions.KeyName, existingKey.KeyMetadata.Arn);
+
+         await _handler.InitializeAsync(new EncryptionScheme(_schemeName, typeof(AwsRsaEncryptionHandler), typeof(AwsRsaEncryptionHandler)));
+
+         var plaintextBytes = new byte[32];
+         RandomNumberGenerator.Fill(plaintextBytes);
+
+         Func<Task> encryptAction = async () => await _handler.EncryptAsync(plaintextBytes, null, CancellationToken.None);
+
+         await encryptAction.Should().ThrowAsync<KeyTypeNotSupportedException>();
      }
 }
