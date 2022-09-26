@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/Basis-Theory/open-kms/compare/v1.2.0...v1.3.0) (2022-09-26)
+
+
+### Features
+
+* add AWS RSA and AES implementations ([#11](https://github.com/Basis-Theory/open-kms/issues/11)) ([e8566ed](https://github.com/Basis-Theory/open-kms/commit/e8566edec9dfbd840a20b7404faf19f1ef6f5533))
+
 # [1.2.0](https://github.com/Basis-Theory/open-kms/compare/v1.1.0...v1.2.0) (2022-08-19)
 
 
