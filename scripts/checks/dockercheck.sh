@@ -2,7 +2,7 @@
 
 echo "Checking Docker..."
 
-EXPECTED_DOCKER="(18|19|20)\.[0-9]+\.[0-9]*"
+EXPECTED_DOCKER="(18|19|20|23|24)\.[0-9]+\.[0-9]*"
 DISPLAY_DOCKER_REGEX=$(sed -e 's|\\\([.+?*()]\)|\1|g' -e 's|[.+?]\*|*|g' <<<${EXPECTED_DOCKER})
 version=$(docker version --format '{{.Client.Version}}' 2>&1)
 
