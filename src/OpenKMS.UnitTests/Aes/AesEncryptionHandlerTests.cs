@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using Bogus;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
-using Moq;
+using NSubstitute;
 using OpenKMS.Aes;
 using OpenKMS.Exceptions;
 
@@ -12,7 +12,7 @@ public class AesEncryptionHandlerTests
 {
     private readonly Randomizer _randomizer = new();
     private readonly EncryptionHandler<AesEncryptionOptions> _handler;
-    private readonly Mock<IOptionsMonitor<AesEncryptionOptions>> _handlerOptionsMonitor;
+    private readonly IOptionsMonitor<AesEncryptionOptions> _handlerOptionsMonitor;
     private readonly AesEncryptionOptions _handlerOptions;
     private readonly string _schemeName;
 
@@ -21,11 +21,10 @@ public class AesEncryptionHandlerTests
         _schemeName = _randomizer.String2(10, 20);
         _handlerOptions = new AesEncryptionOptions();
 
-        _handlerOptionsMonitor = new Mock<IOptionsMonitor<AesEncryptionOptions>>();
-        _handlerOptionsMonitor.Setup(x => x.Get(_schemeName))
-            .Returns(_handlerOptions);
+        _handlerOptionsMonitor = Substitute.For<IOptionsMonitor<AesEncryptionOptions>>();
+        _handlerOptionsMonitor.Get(_schemeName).Returns(_handlerOptions);
 
-        _handler = new AesEncryptionHandler(_handlerOptionsMonitor.Object);
+        _handler = new AesEncryptionHandler(_handlerOptionsMonitor);
     }
 
     [Fact]
