@@ -6,12 +6,19 @@ on:
 
 jobs:
   build-publish:
+    environment: PROD
     runs-on: ubuntu-latest
 
     steps:
+      - name: Start Deploy Message
+        uses: Basis-Theory/github-actions/deploy-slack-action@master
+        with:
+          slack-api-token: ${{ secrets.SLACK_DUCKBOT_API_KEY }}
+          channel: ${{ vars.SLACK_DUCKBOT_PRODUCT_DEPLOY_CHANNEL }}
+
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.SEMANTIC_RELEASE_PAT }}
+          token: ${{ secrets.GH_SEMANTIC_RELEASE_PAT }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
@@ -21,8 +28,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
-          cache: 'yarn'
+          node-version: "14"
+          cache: "yarn"
 
       - name: Verify
         run: make verify
@@ -30,15 +37,13 @@ jobs:
       - name: Release
         run: make release
         env:
-          GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_PAT }}
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GH_SEMANTIC_RELEASE_PAT }}
+          NUGET_API_KEY: ${{ secrets.NUGET_PUBLISHING_TOKEN }}
 
-      - name: Slack Release Alert
-        uses: 8398a7/action-slack@v3
+      - name: Stop Deploy Message
         if: always()
+        uses: Basis-Theory/github-actions/deploy-slack-action@master
         with:
-          status: ${{ job.status }}
-          channel: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
-          fields: 'repo,commit,message,workflow,job'
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          slack-api-token: ${{ secrets.SLACK_DUCKBOT_API_KEY }}
+          channel: ${{ vars.SLACK_DUCKBOT_PRODUCT_DEPLOY_CHANNEL }}
+          status: "done"
