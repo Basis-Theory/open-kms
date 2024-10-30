@@ -1,3 +1,6 @@
+# Deprecated
+Basis Theory is no longer maintaing this repository as of `10/30/2024`
+
 # Open KMS SDK
 
 [![NuGet](https://img.shields.io/nuget/v/OpenKMS.svg)](https://www.nuget.org/packages/OpenKMS/)
